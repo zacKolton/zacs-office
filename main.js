@@ -286,18 +286,11 @@ function renderQuoteSection() {
         text: TextConstants.quote.body
     });
 
-    const prototypeNote = Utilities.createElement("div", {
-        className: "prototype-note",
-        id: "prototypeNote",
-        text: TextConstants.quote.prototypeNote
-    });
-
     const copy = Utilities.createElement("div", {
         children: [
             kicker,
             heading,
-            body,
-            prototypeNote
+            body
         ]
     });
 
@@ -306,17 +299,11 @@ function renderQuoteSection() {
         id: "quoteFormButton",
         text: TextConstants.quote.button,
         attributes: {
-            href: LinkConstants.quoteFormUrl
+            href: LinkConstants.quoteFormUrl,
+            target: "_blank",
+            rel: "noopener noreferrer"
         }
     });
-
-    if (
-        LinkConstants.quoteFormUrl !== "#" &&
-        LinkConstants.externalLinks.quoteFormOpensNewTab
-    ) {
-        quoteButton.setAttribute("target", "_blank");
-        quoteButton.setAttribute("rel", "noopener noreferrer");
-    }
 
     const panel = Utilities.createElement("div", {
         className: "quote-panel",
@@ -529,8 +516,6 @@ function renderSectionHeader({ kicker, heading, intro }) {
 function attachEventHandlers() {
     const menuButton = Utilities.getElement("#menuButton");
     const navLinks = Utilities.getElement("#navLinks");
-    const quoteFormButton = Utilities.getElement("#quoteFormButton");
-    const prototypeNote = Utilities.getElement("#prototypeNote");
 
     menuButton.addEventListener("click", () => {
         navLinks.classList.toggle("open");
@@ -540,16 +525,5 @@ function attachEventHandlers() {
         link.addEventListener("click", () => {
             navLinks.classList.remove("open");
         });
-    });
-
-    quoteFormButton.addEventListener("click", (event) => {
-        if (LinkConstants.quoteFormUrl === "#") {
-            event.preventDefault();
-            prototypeNote.style.display = "block";
-            prototypeNote.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest"
-            });
-        }
     });
 }
