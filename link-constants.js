@@ -5,7 +5,7 @@
 */
 
 const LinkConstants = Object.freeze({
-    quoteFormUrl: "#",
+    quoteFormUrl: "https://forms.gle/97ZvWTL7YstdbuB69",
 
     anchors: Object.freeze({
         top: "#top",
