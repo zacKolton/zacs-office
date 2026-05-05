@@ -21,19 +21,18 @@ function renderHeader() {
         }
     });
 
-    if (Utilities.shouldUseImageAssets()) {
-        const logoPath = Utilities.getImagePath("logo");
+    const logoPath = Utilities.getImagePath("logo");
 
-        if (logoPath) {
-            brandMark.appendChild(
-                Utilities.createElement("img", {
-                    attributes: {
-                        src: logoPath,
-                        alt: TextConstants.brand.logoAlt
-                    }
-                })
-            );
+    const logoImage = Utilities.createOptionalImage({
+        src: logoPath,
+        alt: TextConstants.brand.logoAlt,
+        onError() {
+            brandMark.textContent = "";
         }
+    });
+
+    if (logoImage) {
+        brandMark.appendChild(logoImage);
     }
 
     const brand = Utilities.createElement("a", {
@@ -83,6 +82,7 @@ function renderHeader() {
         ]
     });
 
+    header.innerHTML = "";
     header.appendChild(nav);
 }
 
@@ -100,6 +100,7 @@ function renderMain() {
     const app = Utilities.getElement("#app");
 
     app.id = "top";
+    app.innerHTML = "";
 
     app.appendChild(renderHero());
     app.appendChild(renderWorkSection());
@@ -238,26 +239,26 @@ function renderWorkCategory(category) {
 
 function renderToolBadge(tool) {
     const icon = Utilities.createElement("span", {
-        className: `tool-icon ${tool.cssClass}`
+        className: `tool-icon ${tool.cssClass}`,
+        text: tool.fallbackText
     });
 
-    if (Utilities.shouldUseImageAssets()) {
-        const iconPath = Utilities.getIconPath(tool.iconKey);
+    const iconPath = Utilities.getIconPath(tool.iconKey);
 
-        if (iconPath) {
-            icon.appendChild(
-                Utilities.createElement("img", {
-                    attributes: {
-                        src: iconPath,
-                        alt: ""
-                    }
-                })
-            );
-        } else {
+    const iconImage = Utilities.createOptionalImage({
+        src: iconPath,
+        alt: "",
+        onLoad() {
+            icon.textContent = "";
+        },
+        onError() {
             icon.textContent = tool.fallbackText;
         }
-    } else {
-        icon.textContent = tool.fallbackText;
+    });
+
+    if (iconImage) {
+        icon.textContent = "";
+        icon.appendChild(iconImage);
     }
 
     return Utilities.createElement("span", {
@@ -390,18 +391,40 @@ function renderAboutSection() {
 }
 
 function renderPhotoPlaceholder(imageKey, placeholderText, className) {
-    const element = Utilities.createElement("div", {
-        className,
+    const fallback = Utilities.createElement("span", {
+        className: "photo-fallback",
         text: placeholderText
     });
 
-    if (Utilities.shouldUseImageAssets()) {
-        const imagePath = Utilities.getImagePath(imageKey);
+    let photoSpecificClass = "";
 
-        if (imagePath) {
-            element.style.backgroundImage = `url("${imagePath}")`;
+    if (imageKey === "zacPhoto") {
+        photoSpecificClass = "zac-photo";
+    } else if (imageKey === "dogPhoto") {
+        photoSpecificClass = "dog-photo";
+    }
+
+    const element = Utilities.createElement("div", {
+        className: `${className} ${photoSpecificClass}`.trim(),
+        children: [fallback]
+    });
+
+    const imagePath = Utilities.getImagePath(imageKey);
+
+    const image = Utilities.createOptionalImage({
+        src: imagePath,
+        alt: placeholderText,
+        className: "photo-image",
+        onLoad() {
             element.classList.add("has-image");
+        },
+        onError() {
+            element.classList.remove("has-image");
         }
+    });
+
+    if (image) {
+        element.appendChild(image);
     }
 
     return element;
@@ -455,6 +478,8 @@ function renderFaqItem(item) {
 
 function renderFooter() {
     const footer = Utilities.getElement("#siteFooter");
+
+    footer.innerHTML = "";
 
     footer.appendChild(
         Utilities.createElement("strong", {

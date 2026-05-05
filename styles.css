@@ -512,28 +512,40 @@ h2 {
 .about-photos {
     display: grid;
     gap: 12px;
+    align-content: start;
 }
 
 .photo-placeholder {
     border: 1px solid var(--border);
     background: var(--panel);
-    min-height: 220px;
     display: grid;
     place-items: center;
     text-align: center;
     color: var(--muted);
     font-weight: 700;
     padding: 18px;
-    background-size: cover;
-    background-position: center;
-}
-
-.photo-placeholder.has-image {
-    color: transparent;
+    overflow: hidden;
+    min-height: 140px;
 }
 
 .photo-placeholder.small {
     min-height: 110px;
+}
+
+.photo-placeholder.has-image {
+    display: block;
+    padding: 0;
+    min-height: 0;
+}
+
+.photo-placeholder.has-image .photo-fallback {
+    display: none;
+}
+
+.photo-image {
+    width: 100%;
+    height: auto;
+    display: block;
 }
 
 .about-text p {
@@ -635,10 +647,6 @@ details p {
 
     .about-photos {
         grid-template-columns: 1fr 1fr;
-    }
-
-    .photo-placeholder {
-        min-height: 180px;
     }
 }
 

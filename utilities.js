@@ -1,6 +1,6 @@
 "use strict";
 
-const Utilities = Object.freeze({
+window.Utilities = Object.freeze({
     getElement(selector, parent = document) {
         const element = parent.querySelector(selector);
 
@@ -22,17 +22,19 @@ const Utilities = Object.freeze({
             element.id = options.id;
         }
 
-        if (options.text) {
+        if (options.text !== undefined && options.text !== null) {
             element.textContent = options.text;
         }
 
-        if (options.html) {
+        if (options.html !== undefined && options.html !== null) {
             element.innerHTML = options.html;
         }
 
         if (options.attributes) {
             Object.entries(options.attributes).forEach(([name, value]) => {
-                element.setAttribute(name, value);
+                if (value !== undefined && value !== null) {
+                    element.setAttribute(name, value);
+                }
             });
         }
 
@@ -67,6 +69,10 @@ const Utilities = Object.freeze({
     },
 
     applyCssVariables(cssVariables) {
+        if (!cssVariables) {
+            return;
+        }
+
         Object.entries(cssVariables).forEach(([variableName, variableValue]) => {
             document.documentElement.style.setProperty(variableName, variableValue);
         });
@@ -89,23 +95,69 @@ const Utilities = Object.freeze({
         });
     },
 
-    shouldUseImageAssets() {
-        return Boolean(window.AssetConstants && AssetConstants.USE_IMAGE_ASSETS);
+    hasAssetPath(path) {
+        return typeof path === "string" && path.trim().length > 0;
+    },
+
+    getAssetConstants() {
+        if (typeof AssetConstants !== "undefined") {
+            return AssetConstants;
+        }
+
+        if (window.AssetConstants) {
+            return window.AssetConstants;
+        }
+
+        return null;
     },
 
     getIconPath(iconKey) {
-        if (!window.AssetConstants || !AssetConstants.icons) {
+        const assetConstants = Utilities.getAssetConstants();
+
+        if (!assetConstants || !assetConstants.icons) {
             return "";
         }
 
-        return AssetConstants.icons[iconKey] || "";
+        return assetConstants.icons[iconKey] || "";
     },
 
     getImagePath(imageKey) {
-        if (!window.AssetConstants || !AssetConstants.images) {
+        const assetConstants = Utilities.getAssetConstants();
+
+        if (!assetConstants || !assetConstants.images) {
             return "";
         }
 
-        return AssetConstants.images[imageKey] || "";
+        return assetConstants.images[imageKey] || "";
+    },
+
+    createOptionalImage({ src, alt = "", className = "", onLoad, onError }) {
+        if (!Utilities.hasAssetPath(src)) {
+            return null;
+        }
+
+        const image = Utilities.createElement("img", {
+            className,
+            attributes: {
+                src,
+                alt
+            }
+        });
+
+        image.addEventListener("load", () => {
+            if (typeof onLoad === "function") {
+                onLoad(image);
+            }
+        });
+
+        image.addEventListener("error", () => {
+            image.remove();
+
+            if (typeof onError === "function") {
+                onError();
+            }
+        });
+
+        return image;
     }
 });
